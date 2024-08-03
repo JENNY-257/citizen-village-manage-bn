@@ -3,6 +3,7 @@ import cors from "cors";
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import connectDB from './src/config/database.js';
+import userRoute from './src/routes/userRoutes.js';
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ app.use(
 app.use(bodyParser.json());
 
 connectDB();
+
+app.use('/api/v1/users', userRoute);
 
 app.listen(PORT,() =>{
   console.log(`Server started on ${PORT}`);
