@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import generateProfilePicture from "../service/defaultProfile.js";
 
 const userSchema = mongoose.Schema({
     
@@ -37,16 +38,22 @@ const userSchema = mongoose.Schema({
         enum:['Mother','Father','Child'],
         required:true
       },
+      profile:{
+        type:String,
+        default:function(){
+            return generateProfilePicture(this.firstName,this.lastName);
+        }
+      },
     
       isActive:{
-        type:String,
+        type:Boolean,
         default:true
       },
       verified:{
         type:Boolean,
         default:false
       }
-});
+},{timestamps:true});
 
 const User = mongoose.model('User',userSchema);
 export default User;
