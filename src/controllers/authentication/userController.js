@@ -126,3 +126,76 @@ export const userLogin = async(req,res) =>{
        return res.status(500).json({message:"error for login"}) 
     }
 }
+// send email to reset password
+
+export const sendEmailToUser = async(req,res) => {
+
+    try {
+
+        const {email} = req.body;
+        const userEmail = await User.findOne({email:email});
+        if(!userEmail){
+            return res.status(404).json({message:"User not found"});
+        }
+        if(userEmail.verified!=true){
+            return res.status(400).json({message:"Email is not verified"});
+        }
+        const token = jwt.sign({email:email},process.env.ACCESS_TOKET_SECRETE);
+        const url = `${process.env.FRONTEND_URL}/api/v1/users/reset-password/${token}`;
+
+        const mailOptions = {
+            to:userEmail.email,
+            subject: "Email reset password Link",
+            html: `
+                 <p style="font-size:15px;">Dear ${userEmail.firstName} ${userEmail.lastName},</p>
+                 <p>Welcome to the Citizen Village Management System. Please click the link below to reset your password:</p>
+                 <a style="background-color: rgb(30 58 138); color: white;  padding: 20px; border-radius: 10px; display: inline-block; text-decoration: none;" href="${url}">Reset password</a>`
+        };
+        try {
+            await sendEmail(mailOptions);
+        } catch (error) {
+            return res.status(500).json({message:"Failed to send email reset password"});
+        }
+
+        return  res.status(200).json({message:"Check on your email to reset password"})
+         
+    } catch (error) {
+        console.log(error,"hhhhhhh")
+        return res.status(500).json({message:"Error for sending email to user"});
+    }
+
+}
+
+
+// user reset password
+
+export const userResetPassword = async(req,res) => {
+
+    try {
+        const {token} = req.params;
+        const {newPassword, confirmPassword} = req.body;
+
+        const verifyToken = jwt.verify(token,process.env.ACCESS_TOKET_SECRETE);
+        const {email} = verifyToken;
+        const user = await User.findOne({email});
+
+        if(!user){
+            return res.status(500).json({message:"User not found"})
+        }
+        
+
+        if(newPassword != confirmPassword){
+            return res.status(400).json({message:"password must much with new password"});
+        }
+
+        const hashPassword = await bcrypt.hash(newPassword,10);
+
+        user.password = hashPassword;
+        await user.save();
+        return res.status(200).json("Password reset succesfully");
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message:"Error for reseting password"});
+    }
+
+}
