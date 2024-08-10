@@ -88,3 +88,24 @@ export const resetPasswordValidation = (req,res,next) => {
     next();
   } 
 }
+
+const updatePasswordSchema = Joi.object().keys({
+  currentPassword:Joi.string().min(4).max(20).required(),
+  newPassword:Joi.string().min(4).max(20).required(),
+  confirmPassword:Joi.string().min(4).max(20).required(),
+});
+
+const validateUpdateSchema = validateForm(updatePasswordSchema);
+
+export const updateValidation = (req, res, next) => {
+  const { error } = validateUpdateSchema(req.body);
+  if (error) {
+    res.status(400).json({
+      status: 400,
+      error: error.details.map((detail) => detail.message.replace(/[^a-zA-Z0-9 ]/g, '')),
+    });
+  } else {
+    next();
+  } 
+
+}
