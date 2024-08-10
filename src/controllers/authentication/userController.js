@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
 import User from '../../models/UserModel.js';
 import { sendEmail } from '../../utils/sendEmail.js';
+import Token from '../../models/blackList.js';
 
 // create user account
 
@@ -235,14 +236,15 @@ export const updatePassword = async(req, res) => {
         }
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: "Current password is incorrect" });
+            return res.status(400).json({ 
+            message: "Current password is incorrect" });
         }
   
         if(newPassword !== confirmPassword){
             return res.status(400).json({
             message:"new password must much with confirm password"});
         }
-
+         
         const updatedPassword = await bcrypt.hash(newPassword, 10);
 
         user.password = updatedPassword;
@@ -253,5 +255,33 @@ export const updatePassword = async(req, res) => {
     } catch (error) {
        return res.status(500).json({
        message:"Error for updating password"}); 
+    }
+}
+
+// user logout
+export const userLogout = async(req, res) =>{
+    try {
+        const authHeader = req.headers.authorization;
+        if(!authHeader){
+            return res.status(404).json({
+            message:"Aurhorization header is missing"});
+        }
+        const token = authHeader.split(" ")[1];
+
+        if(!token){
+            return res.status(404).json({
+            message:"Invalid authorization format"});
+        }
+
+        const newBlackList = new Token({
+            token
+        })
+        await newBlackList.save();
+        return res.status(201).json({
+        message:"User logout succesfully"});
+
+    } catch (error) {
+        return res.status(500).json({
+        message:"Error for logout acount"});
     }
 }
