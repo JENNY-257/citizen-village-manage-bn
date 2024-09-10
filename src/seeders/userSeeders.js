@@ -7,32 +7,46 @@ import users from "../data/users.js";
 dotenv.config();
 connectDB();
 
-const destroyData = async() => {
+// Function to delete all users
+const destroyData = async () => {
     try {
         await User.deleteMany();
-        console.log("users removed ".red.inverse);
+        console.log("Users removed".red.inverse);
         process.exit();
     } catch (error) {
         console.log(`${error}`.red.inverse);
         process.exit(1);
     }
-}
+};
 
-const importData = async() => {
+// Function to import users, avoiding duplicates
+const importData = async () => {
     try {
-        const createdUsers = await User.insertMany(users);
-        const importedUser = createdUsers[0]._id;
-        console.log("users imported".green.inverse);
+        // Find existing users by email
+        const existingUsers = await User.find({ email: { $in: users.map(user => user.email) } });
+        const existingEmails = new Set(existingUsers.map(user => user.email));
+
+        // Filter out users with existing emails
+        const newUsers = users.filter(user => !existingEmails.has(user.email));
+
+        // Insert new users
+        if (newUsers.length > 0) {
+            await User.insertMany(newUsers);
+            console.log("Users imported".green.inverse);
+        } else {
+            console.log("No new users to import".yellow.inverse);
+        }
+        
         process.exit();
     } catch (error) {
         console.log(`${error}`.red.inverse);
         process.exit(1);
     }
-}
+};
 
-if(process.argv[2] === '-d'){
+// Run the appropriate function based on the argument
+if (process.argv[2] === '-d') {
     destroyData();
-}
-else{
+} else {
     importData();
 }

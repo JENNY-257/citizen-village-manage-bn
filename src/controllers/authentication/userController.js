@@ -126,8 +126,12 @@ export const userLogin = async(req,res) =>{
             return res.status(400).json({
             message:"Email is not verified"});
         }
+        if(user.isActive!=true){
+            return res.status(400).json({
+            message:"Your email is inactive please ask support to the administrator"});
+        }
 
-        const token = jwt.sign({ email:email,role:user.role },
+        const token = jwt.sign({ email:email,role:user.role,id:user._id },
                  process.env.ACCESS_TOKEN_SECRETE);
         return res.status(200).json({
         message: 'Login successful', token });

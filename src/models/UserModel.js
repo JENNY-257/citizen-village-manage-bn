@@ -25,7 +25,7 @@ const userSchema = mongoose.Schema({
       role:{
         type:String,
         enum:['admin','village leader','villager','visitor'],
-        default:'user'
+        default:'villager'
       },
 
       maritalStatus:{
