@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import Token from '../models/blackList.js';
+
 export const isLoggedIn = async(req,res,next) => {
     
     try {
@@ -63,4 +64,25 @@ export const checkBlackList = async(req, res, next) => {
         return res.status(500).json({error:error.message});
     }
 
+}
+
+export const checkUserRole = (roles) => {
+
+    return async(req,res,next)=>{
+        try {
+            if(!req.user){
+                return res.status(404).json(
+                {message:"Unauthorize!please login"});
+            }
+            const userRole = req.user.role;
+            if(!roles.includes(userRole)){
+                return res.status(403).json(
+                {message:"Access denied"});
+            }
+            next();
+        } catch (error) {
+            return res.status(500).json(
+            {error:error.message});
+        }
+    }
 }

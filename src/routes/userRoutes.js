@@ -18,7 +18,12 @@ resetPasswordValidation,
 updateValidation
 }
 from '../validations/userValidation.js';
-import { checkBlackList, isLoggedIn } from '../middleware/userMiddleware.js';
+import { 
+checkBlackList, 
+isLoggedIn ,
+ checkUserRole} 
+from '../middleware/userMiddleware.js';
+import { adminAssignRole } from '../controllers/authentication/adminController.js';
 
 const userRoute = Router();
 
@@ -29,4 +34,5 @@ userRoute.post('/send-email',emailSchemaValidation,sendEmailToUser);
 userRoute.post('/reset-password/:token',resetPasswordValidation,userResetPassword);
 userRoute.patch('/update-password',updateValidation,isLoggedIn,checkBlackList,updatePassword);
 userRoute.post('/logout',userLogout);
+userRoute.patch('/assign-role/:userId',isLoggedIn ,checkUserRole(['admin']),adminAssignRole);
 export default userRoute;
