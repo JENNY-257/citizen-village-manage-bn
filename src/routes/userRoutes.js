@@ -23,7 +23,7 @@ checkBlackList,
 isLoggedIn ,
  checkUserRole} 
 from '../middleware/userMiddleware.js';
-import { adminAssignRole } from '../controllers/authentication/adminController.js';
+import { adminAssignRole, getAllUsers, getSingleUser } from '../controllers/authentication/adminController.js';
 
 const userRoute = Router();
 
@@ -34,5 +34,7 @@ userRoute.post('/send-email',emailSchemaValidation,sendEmailToUser);
 userRoute.post('/reset-password/:token',resetPasswordValidation,userResetPassword);
 userRoute.patch('/update-password',updateValidation,isLoggedIn,checkBlackList,updatePassword);
 userRoute.post('/logout',userLogout);
-userRoute.patch('/assign-role/:userId',isLoggedIn ,checkUserRole(['admin']),adminAssignRole);
+userRoute.patch('/assign-role/:userId',isLoggedIn ,checkUserRole(['admin']),checkBlackList,adminAssignRole);
+userRoute.get('/',isLoggedIn ,checkUserRole(['admin']),checkBlackList,getAllUsers);
+userRoute.get('/:id',isLoggedIn ,checkUserRole(['admin']),checkBlackList,getSingleUser);
 export default userRoute;
