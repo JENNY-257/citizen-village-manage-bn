@@ -32,7 +32,6 @@ export const adminAssignRole = async(req,res) => {
       {message:"user updated succcefully",upddatedRole});
 
     } catch (error) {
-        console.log(`${error}`);
         return res.status(500).json(
         {message:"error for assigning role"});
     }
@@ -72,7 +71,6 @@ export const getSingleUser = async(req,res) => {
        { message: "Invalid user ID format" });
     }
     const user = await User.findById(id);
-
     if(!user){
       return res.status(404).json(
       {message:"User not found"});
@@ -82,9 +80,44 @@ export const getSingleUser = async(req,res) => {
     {message:"Successfully",user});
     
   } catch (error) {
-    console.log(`${error}`)
     return res.status(500).json(
     {message:"error for getting user"});
+  }
+
+}
+
+
+export const deleteUser = async(req,res) => {
+      
+  try {
+    const {userId} = req.params;
+
+    if(!mongoose.Types.ObjectId.isValid(userId)){
+
+      return res.status(400).json(
+      {message:"invalid user ID"});
+
+    }
+
+    const user = await User.findById(userId);
+
+    if(!user){
+
+      return res.status(404).json(
+      {message:"User not found"});
+
+    }
+
+    await User.deleteOne({_id:userId})
+
+    return res.status(200).json(
+    {message:"user deleted successfully"});
+
+  } catch (error) {
+
+    return res.status(500).json(
+    {message:"error for deleting user"});
+    
   }
 
 }
