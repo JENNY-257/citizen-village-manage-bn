@@ -23,7 +23,7 @@ checkBlackList,
 isLoggedIn ,
  checkUserRole} 
 from '../middleware/userMiddleware.js';
-import { adminAssignRole, getAllUsers, getSingleUser } from '../controllers/authentication/adminController.js';
+import { adminAssignRole, deleteUser, getAllUsers, getSingleUser } from '../controllers/authentication/adminController.js';
 
 const userRoute = Router();
 
@@ -36,5 +36,6 @@ userRoute.patch('/update-password',updateValidation,isLoggedIn,checkBlackList,up
 userRoute.post('/logout',userLogout);
 userRoute.patch('/assign-role/:userId',isLoggedIn ,checkUserRole(['admin']),checkBlackList,adminAssignRole);
 userRoute.get('/',isLoggedIn ,checkUserRole(['admin']),checkBlackList,getAllUsers);
-userRoute.get('/:id',isLoggedIn ,checkUserRole(['admin']),checkBlackList,getSingleUser);
+userRoute.get('/:id',isLoggedIn ,checkUserRole(['admin','village leader']),checkBlackList,getSingleUser);
+userRoute.delete('/:userId',checkUserRole(['admin','village leader']),checkBlackList,deleteUser);
 export default userRoute;
