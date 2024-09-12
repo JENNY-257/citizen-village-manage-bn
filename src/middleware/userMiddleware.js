@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import Token from '../models/blackList.js';
+import User from '../models/UserModel.js';
 
 export const isLoggedIn = async(req,res,next) => {
     
@@ -13,6 +14,13 @@ export const isLoggedIn = async(req,res,next) => {
             if(token){
                 const payload =  jwt.verify(token,process.env.ACCESS_TOKEN_SECRETE);
                 if(payload){
+                 // Check if the user still exists in the database
+                 const user = await User.findById(payload.id);
+                       if (!user) {
+                         return res.status(401).json({
+                         message: "User no longer exists, please login again"
+                         });
+                       }
                     // store  user data in request object
                     req.user = payload;
                     next();
@@ -58,7 +66,7 @@ export const checkBlackList = async(req, res, next) => {
             return res.status(400).json({
             message:"You sesion has expired please login"});
         }
-        next()
+        next();
         
     } catch (error) {
         return res.status(500).json({error:error.message});
